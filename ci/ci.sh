@@ -69,23 +69,27 @@ job_simulator() {
         CODE_SIGNING_ALLOWED=NO
 }
 
-# The four Info.plist facts that are this bundle's entire reason to exist, and
-# every one of them fails silently: an app that quietly gains a portrait
-# orientation, a second scene, or a camera prompt still compiles, links, launches
-# and looks fine until it is on the iPad.
+# The Info.plist facts that define this bundle, and every one of them fails
+# silently: an app that quietly loses an orientation, regains the deprecated
+# full-screen key, gains a second scene or a camera prompt still compiles, links,
+# launches and looks fine until it is on the iPad.
 job_bundle() {
     step 'bundle assertions'
     local app=$DERIVED_SIM/Build/Products/Debug-iphonesimulator/Remotex.app
     local plist=$app/Info.plist
     [ -f "$plist" ] || die "no simulator build at $app — run the 'simulator' job first"
 
+    # All four, explicitly: iPadOS 26 does not enforce an iPad orientation mask
+    # anyway, so a narrower list is a lock that holds on 17 and not on 26.
     local orientations
     orientations=$(plutil -extract 'UISupportedInterfaceOrientations~ipad' json -o - "$plist")
-    [ "$orientations" = '["UIInterfaceOrientationLandscapeLeft","UIInterfaceOrientationLandscapeRight"]' ] \
-        || die "iPad orientations are $orientations, not the two landscapes"
+    [ "$orientations" = '["UIInterfaceOrientationPortrait","UIInterfaceOrientationPortraitUpsideDown","UIInterfaceOrientationLandscapeLeft","UIInterfaceOrientationLandscapeRight"]' ] \
+        || die "iPad orientations are $orientations, not all four"
 
-    [ "$(plutil -extract UIRequiresFullScreen raw -o - "$plist")" = true ] \
-        || die 'the bundle no longer requires full screen'
+    # Deprecated in iPadOS 26, ignored there for 26-SDK builds, and in 27 it means
+    # discrete resizing, which a web view does not want. Gone, and stays gone.
+    ! plutil -extract UIRequiresFullScreen raw -o - "$plist" >/dev/null 2>&1 \
+        || die 'the bundle declares UIRequiresFullScreen again'
     [ "$(plutil -extract UIApplicationSceneManifest.UIApplicationSupportsMultipleScenes raw -o - "$plist")" = false ] \
         || die 'the bundle now supports multiple scenes, which is multitasking by another name'
 
@@ -96,7 +100,7 @@ job_bundle() {
     ! plutil -extract NSMicrophoneUsageDescription raw -o - "$plist" >/dev/null 2>&1 \
         || die 'the bundle asks for the microphone, which v1 does not do'
 
-    info 'landscape-only, full screen, single scene, no capture'
+    info 'all orientations, no full-screen key, single scene, no capture'
 }
 
 # The only check that proves the app gets past launch; everything else stops at
