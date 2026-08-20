@@ -1,0 +1,8 @@
+// Committed base signing config, referenced by project.yml (configFiles) so
+// Xcode/xcodebuild builds sign automatically.
+//
+// Do NOT put your Team ID here. Per-developer signing lives in the gitignored
+// Developer.local.xcconfig; the optional include below pulls it in when present,
+// so a fresh clone still generates and builds without one.
+DEVELOPMENT_TEAM =
+#include? "Developer.local.xcconfig"
