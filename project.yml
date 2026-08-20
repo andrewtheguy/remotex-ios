@@ -1,0 +1,61 @@
+# XcodeGen spec for the remotex iPad wrapper.
+#
+# Generate the Xcode project with:   xcodegen generate
+#
+# The app is a WKWebView and nothing else. remotex has one client — the page a
+# browser loads — and this bundle exists only because iPadOS gives a web app no
+# way to fill the screen: Safari keeps its chrome, and a home-screen web clip
+# cannot be installed against an arbitrary gateway. So the wrapper asks for the
+# endpoint, then hands it to WebKit full screen and stays out of the way.
+name: Remotex
+
+options:
+  bundleIdPrefix: com.andrewtheguy
+  deploymentTarget:
+    # WebCodecs (VideoDecoder and AudioDecoder both) is the client's entry
+    # condition; WebKit shipped it in iOS 16.4, so 17 is comfortably clear of it.
+    iOS: "17.0"
+  createIntermediateGroups: true
+
+# Per-developer signing lives in Developer.local.xcconfig (gitignored). Copy
+# Developer.local.xcconfig.sample and set DEVELOPMENT_TEAM.
+configFiles:
+  Debug: Developer.xcconfig
+  Release: Developer.xcconfig
+
+schemes:
+  RemotexApp:
+    build:
+      targets:
+        RemotexApp: all
+    run:
+      config: Debug
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+    archive:
+      config: Release
+
+settings:
+  base:
+    CODE_SIGN_STYLE: Automatic
+    SWIFT_VERSION: "5.0"
+    # iPad only. The whole point of the bundle is the iPad's missing full screen.
+    TARGETED_DEVICE_FAMILY: "2"
+    ENABLE_USER_SCRIPT_SANDBOXING: NO
+
+targets:
+  RemotexApp:
+    type: application
+    platform: iOS
+    sources:
+      - Sources/RemotexApp
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.andrewtheguy.remotex
+        PRODUCT_NAME: Remotex
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        INFOPLIST_FILE: Sources/RemotexApp/Info.plist
+        MARKETING_VERSION: "0.0.1"
+        CURRENT_PROJECT_VERSION: "1"
