@@ -41,6 +41,7 @@ struct SessionView: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .accessibilityLabel("Session menu")
         .confirmationDialog("remotex", isPresented: $showingMenu, titleVisibility: .hidden) {
             Button("Reload") { session.load() }
             Button("Change endpoint…") { onChangeEndpoint() }

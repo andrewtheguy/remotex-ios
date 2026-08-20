@@ -93,6 +93,8 @@ job_bundle() {
     # scope line moving, and it moves by accident.
     ! plutil -extract NSCameraUsageDescription raw -o - "$plist" >/dev/null 2>&1 \
         || die 'the bundle asks for the camera, which v1 does not do'
+    ! plutil -extract NSMicrophoneUsageDescription raw -o - "$plist" >/dev/null 2>&1 \
+        || die 'the bundle asks for the microphone, which v1 does not do'
 
     info 'landscape-only, full screen, single scene, no capture'
 }
@@ -131,7 +133,12 @@ job_smoke() {
 # the job is that Developer.local.xcconfig carries it.
 job_device() {
     step 'signed device build'
-    grep -q '[0-9A-Z]' Developer.local.xcconfig 2>/dev/null \
+    # The sample file is all comments, and its prose matched a bare `[0-9A-Z]`:
+    # copying it without filling anything in used to pass this check.
+    local team
+    team=$(sed -n 's|^[[:space:]]*DEVELOPMENT_TEAM[[:space:]]*=[[:space:]]*\([^[:space:]/]*\).*|\1|p' \
+        Developer.local.xcconfig 2>/dev/null | tail -1 || true)
+    [ -n "$team" ] \
         || die 'no Developer.local.xcconfig — copy the sample and fill in your Team ID'
     xcodegen generate
     xcodebuild build \

@@ -45,6 +45,12 @@ enum Endpoint {
         else {
             return .failure(.unparseable)
         }
+        // user:password@ in the address would be written to UserDefaults in the
+        // clear by EndpointStore. The gateway's own login is the page's, so there
+        // is nothing here that needs a credential — refuse rather than store one.
+        guard parts.user == nil, parts.password == nil else {
+            return .failure(.unparseable)
+        }
         let scheme = (parts.scheme ?? "").lowercased()
         parts.scheme = scheme
         guard scheme == "https" || scheme == "http" else {
@@ -62,9 +68,22 @@ enum Endpoint {
     private static func isLoopback(_ host: String) -> Bool {
         let bare = host.lowercased().trimmingCharacters(in: CharacterSet(charactersIn: "[]"))
         return bare == "localhost"
-            || bare == "127.0.0.1"
             || bare == "::1"
             || bare.hasSuffix(".localhost")
+            || isLoopbackIPv4(bare)
+    }
+
+    /// All of 127.0.0.0/8, which is what a browser calls potentially trustworthy —
+    /// an SSH tunnel is free to land on 127.0.0.2 and the page would still start.
+    private static func isLoopbackIPv4(_ host: String) -> Bool {
+        let octets = host.split(separator: ".", omittingEmptySubsequences: false)
+        guard octets.count == 4 else { return false }
+        let values = octets.compactMap { octet -> UInt8? in
+            guard !octet.isEmpty, octet.allSatisfy({ $0.isASCII && $0.isNumber })
+            else { return nil }
+            return UInt8(octet)
+        }
+        return values.count == 4 && values[0] == 127
     }
 }
 
