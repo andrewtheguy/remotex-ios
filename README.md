@@ -12,6 +12,15 @@ page the screen: Safari keeps its chrome and its gestures, and a home-screen web
 clip cannot be installed against an address typed at runtime. An app can, so this
 is one.
 
+Touch is the page's as well. Against a Windows host remotex offers a
+**Touchscreen** switch that sends fingers through as real touch contacts
+(MS-RDPEI), so Windows' own gestures apply — tap, drag, press-and-hold, pinch,
+two-finger scroll, edge swipes. The app's one contribution is to defer iPadOS's
+edge gestures on the web view, so a swipe from an edge reaches the page first and
+the system only on a second swipe. Nothing disables an iPadOS edge, and the
+three- and four-finger multitasking gestures are the user's to turn off in
+Settings > Multitasking & Gestures if they want Windows' instead.
+
 ## Build
 
 Needs Xcode and [XcodeGen](https://github.com/yonaskolb/XcodeGen) (`brew install
