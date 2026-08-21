@@ -15,6 +15,13 @@
   a second swipe — nothing disables an iPadOS edge). iPadOS's three- and
   four-finger multitasking gestures collide with Windows' and no app can turn
   them off; that is Settings > Multitasking & Gestures, and not a bug here
+- the page is never served from a cache. `WebSession.load` empties WebKit's
+  memory, disk and fetch caches and any service-worker registration before every
+  load, and requests with `.reloadIgnoringLocalAndRemoteCacheData`, which WebKit
+  applies to the subresources too. The data store stays the default persistent
+  one on purpose: the page's own settings live in its `localStorage`, and a
+  `.nonPersistent()` store would forget them at every launch — that is the wrong
+  fix for staleness and the thing to reject in review
 - strict no backward compatibility
 - the endpoint is validated against the client's entry condition
   (`frontend/src/preflight.ts` in the sibling): secure context only — `https://`,
