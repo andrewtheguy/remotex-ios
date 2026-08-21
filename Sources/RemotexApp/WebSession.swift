@@ -58,10 +58,40 @@ final class WebSession: NSObject, ObservableObject {
         load()
     }
 
+    /// Load the page, and never out of a cache.
+    ///
+    /// The gateway serves the client's files with no `Cache-Control`, so WebKit would
+    /// keep `index.html` and its chunks for a slice of their age, and a gateway
+    /// upgraded under the app would go on showing the old client from this device.
+    /// In Safari that is a hard reload away; here there is no address bar, so the
+    /// app never gives WebKit the chance: the caches are emptied before each load
+    /// and the request itself bypasses whatever would be written in the meantime,
+    /// which WebKit applies to the page's subresources as well as the document.
+    ///
+    /// Only the caches. The data store stays the default persistent one because the
+    /// page keeps its own settings there (the Touchscreen switch, audio, Mac keys,
+    /// in `localStorage`), and forgetting those would be this bundle deciding
+    /// something that is the page's.
     func load() {
         failure = nil
-        webView.load(URLRequest(url: url))
+        let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData)
+        webView.configuration.websiteDataStore.removeData(
+            ofTypes: Self.assetCaches,
+            modifiedSince: .distantPast
+        ) { [webView] in
+            webView.load(request)
+        }
     }
+
+    /// Every place WebKit can answer a request for an asset without asking the
+    /// gateway. A service worker registration is on the list although remotex has
+    /// none: it is the one kind of cache that would survive emptying the others.
+    private static let assetCaches: Set<String> = [
+        WKWebsiteDataTypeMemoryCache,
+        WKWebsiteDataTypeDiskCache,
+        WKWebsiteDataTypeFetchCache,
+        WKWebsiteDataTypeServiceWorkerRegistrations,
+    ]
 }
 
 extension WebSession: WKNavigationDelegate {

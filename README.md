@@ -55,3 +55,7 @@ reach it through a tunnel.
 
 Tap the dot in the top-left corner to reload or change the endpoint. It is
 remembered across launches.
+
+The page is never loaded from a cache: a gateway upgraded under the app shows its
+new client on the next reload or launch. Only WebKit's caches are emptied — the
+page's own remembered settings are kept.
