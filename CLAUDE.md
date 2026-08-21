@@ -8,6 +8,13 @@
   Web Audio is not silenced by the ring/silent switch, and it requests no camera and
   no microphone — no `NSCameraUsageDescription`, no `WKUIDelegate` capture grant. A
   `camera = true` target finding no device here is the scope line, not a bug.
+- touch is the page's too. remotex's **Touchscreen** switch forwards fingers to a
+  Windows host as MS-RDPEI contacts and Windows reads the gestures; this bundle's
+  whole part in it is `.defersSystemGestures(on: .all)` on the web view, so an
+  edge swipe reaches the page before iPadOS takes it (the system still gets it on
+  a second swipe — nothing disables an iPadOS edge). iPadOS's three- and
+  four-finger multitasking gestures collide with Windows' and no app can turn
+  them off; that is Settings > Multitasking & Gestures, and not a bug here
 - strict no backward compatibility
 - the endpoint is validated against the client's entry condition
   (`frontend/src/preflight.ts` in the sibling): secure context only — `https://`,

@@ -15,6 +15,17 @@ struct SessionView: View {
         ZStack(alignment: .topLeading) {
             WebViewHost(session: session)
                 .ignoresSafeArea()
+                // The page may be forwarding fingers to a Windows host as touch
+                // contacts (remotex's Touchscreen switch), and Windows' own edge
+                // gestures live on exactly the edges iPadOS uses for Control
+                // Center and the Dock. Deferring lets a swipe from any edge reach
+                // the page first; the system takes a second swipe. A deferral is
+                // all iPadOS offers — nothing disables its edges — and its three-
+                // and four-finger multitasking gestures are not the app's to
+                // touch at all: those are Settings > Multitasking & Gestures.
+                // Not gesture handling. The page still decides what a finger is.
+                .defersSystemGestures(on: .all)
+                .persistentSystemOverlays(.hidden)
 
             if let failure = session.failure {
                 FailureView(
