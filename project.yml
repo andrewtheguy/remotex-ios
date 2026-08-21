@@ -6,7 +6,7 @@
 # browser loads — and this bundle exists only because iPadOS gives a web app no
 # way to fill the screen: Safari keeps its chrome, and a home-screen web clip
 # cannot be installed against an arbitrary gateway. So the wrapper asks for the
-# endpoint, then hands it to WebKit full screen and stays out of the way.
+# endpoint, then hands it to WebKit edge to edge and stays out of the way.
 name: Remotex
 
 options:
@@ -41,7 +41,7 @@ settings:
   base:
     CODE_SIGN_STYLE: Automatic
     SWIFT_VERSION: "5.0"
-    # iPad only. The whole point of the bundle is the iPad's missing full screen.
+    # iPad only. The bundle exists for the iPad's missing chrome-less web view.
     TARGETED_DEVICE_FAMILY: "2"
     ENABLE_USER_SCRIPT_SANDBOXING: NO
 

@@ -1,7 +1,7 @@
 # remotex-ios
 
-A wrapper. It asks for a gateway address and then shows that page full screen on
-an iPad, in landscape, with nothing around it.
+A wrapper. It asks for a gateway address and then shows that page on an iPad
+with nothing around it — no browser chrome, whatever the window's orientation.
 
 That is the whole feature. remotex has one client — the page a browser loads —
 and this bundle adds none of it. v1 carries the desktop's **sound out and nothing

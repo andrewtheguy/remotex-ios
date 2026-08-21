@@ -23,20 +23,20 @@
 	<key>UIUserInterfaceStyle</key>
 	<string>Dark</string>
 
-	<!-- Landscape only, and only the two landscapes: a remote desktop rotated
-	     onto the iPad's short side is a desktop nobody can use. -->
+	<!-- Every orientation, on purpose. This used to be the two landscapes behind
+	     UIRequiresFullScreen, and iPadOS 26 stopped honouring both for apps built
+	     with the 26 SDK (measured, see CLAUDE.md): the scene is resizable and the
+	     mask is a preference. A lock that holds on 17 and not on 26 is two apps,
+	     so there is none — the page lays itself out in whatever window it gets. -->
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 
-	<!-- The reason this bundle exists. Full screen is the one thing iPadOS will
-	     not give a web page, and multitasking is what takes it away again: with
-	     multiple scenes the app is one tile beside another, and the session's
-	     size would follow a divider instead of the display. -->
-	<key>UIRequiresFullScreen</key>
-	<true/>
+	<!-- One session, one window. A second scene would be a second client. -->
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

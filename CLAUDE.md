@@ -1,6 +1,6 @@
 - purpose: an iPad wrapper around the remotex web client (sibling `../remotex`). It
-  asks for a gateway address and loads that page in a full-screen, landscape-only
-  WKWebView. Nothing else.
+  asks for a gateway address and loads that page in a WKWebView that fills its
+  window. Nothing else.
 - **there is one client, and it is the page.** This bundle must never grow its own
   target picker, login, clipboard, keyboard, audio or camera handling — all of that
   is the page's, and a second implementation here is the thing to reject in review.
@@ -12,7 +12,8 @@
 - the endpoint is validated against the client's entry condition
   (`frontend/src/preflight.ts` in the sibling): secure context only — `https://`,
   or `http://` on loopback and `.localhost`
-- iPad only (`TARGETED_DEVICE_FAMILY: "2"`), landscape only, `UIRequiresFullScreen`
+- iPad only (`TARGETED_DEVICE_FAMILY: "2"`), all orientations, single scene, no
+  `UIRequiresFullScreen`. Orientation is the page's problem, not this bundle's
 - regenerate the project from project.yml after adding sources (`xcodegen generate`)
 - `ci/ci.sh` builds for the simulator and smoke-launches it; both jobs run in the
   macOS VM with no device attached
@@ -22,4 +23,14 @@
   so the client's preflight passes; `navigator.maxTouchPoints` is 5, so it takes the
   touch path (`CAN_PINCH_ZOOM`). Full screen was measured the same way — the window
   bounds equal the screen's at 1376x1032 landscape under iPadOS 26's windowing
+- measured on an iPad mini (A17 Pro), iPadOS 26.6, built with the iOS 26.2 SDK
+  (2026-08-20): iPadOS 26 does not enforce a landscape-only iPad app. A binary
+  linked against the 26 SDK gets a resizable scene (`sizeRestrictions` non-nil)
+  even with `UIRequiresFullScreen` true, and there the orientation mask is a
+  preference; the same binary with its linked-SDK stamp rewritten to 18.0 got the
+  old non-resizable scene back, so the gate is the linked SDK, not the plist.
+  `UIRequiresFullScreenIgnoredStartingWithVersion=99`, an AppDelegate orientation
+  mask and `requestGeometryUpdate(.landscape)` changed nothing. That is why the
+  lock was removed rather than kept for 17/18 only (TN3192: the key is deprecated
+  in 26 and means discrete resizing in 27). Do not reintroduce it.
 - always use uv to run python scripts
